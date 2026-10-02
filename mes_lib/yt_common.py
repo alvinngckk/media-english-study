@@ -95,11 +95,10 @@ def ydl_base_opts(tmpdir: str, *, clients: list[str] | None = None) -> dict[str,
         "sleep_interval_subtitles": 1,
         "socket_timeout": 30,
     }
-    # Prefer TLS fingerprint impersonation when curl_cffi is installed
     try:
         from yt_dlp.networking.impersonate import ImpersonateTarget
 
-        opts["impersonate"] = ImpersonateTarget()  # any available target
+        opts["impersonate"] = ImpersonateTarget()
     except Exception:
         pass
     js = _js_runtimes()
@@ -177,7 +176,19 @@ def _probe_info(url: str, tmpdir: str, clients: list[str]) -> dict[str, Any]:
 def _download_langs(url: str, tmpdir: str, langs: list[str], clients: list[str]) -> None:
     import yt_dlp
 
+    # Expand to yt-dlp wildcards so keys like en-nP7-2PuUl7o still download.
+    expanded: list[str] = []
     for lang in langs:
+        if lang and lang not in expanded:
+            expanded.append(lang)
+        if lang.startswith("en") and "en.*" not in expanded:
+            expanded.append("en.*")
+        if lang.startswith("zh") and "zh.*" not in expanded:
+            expanded.append("zh.*")
+    if not expanded:
+        expanded = ["en", "en.*"]
+
+    for lang in expanded:
         dl_opts = {
             **ydl_base_opts(tmpdir, clients=clients),
             "subtitleslangs": [lang],
@@ -191,4 +202,4 @@ def _download_langs(url: str, tmpdir: str, langs: list[str], clients: list[str])
                 ydl.download([url])
         except Exception:
             continue
-        time.sleep(0.6)
+        time.sleep(0.45)
