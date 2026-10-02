@@ -4,6 +4,8 @@ on:
     paths:
       - "app-part1.js.z64.c*"
       - "app-part2.js.z64.c*"
+      - "index.html.z64.c*"
+      - "styles.css.z64.c*"
       - ".github/workflows/assemble-app-from-z64.yml"
   workflow_dispatch:
 permissions:
@@ -13,36 +15,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Decompress parts into app.js
+      - name: Decompress assets
         run: |
           python3 - <<'PY'
           import pathlib, base64, zlib
           root = pathlib.Path(".")
-          parts = []
-          for part in ["app-part1", "app-part2"]:
+          def inflate(prefix, out_name):
               chunks = []
               i = 0
               while True:
-                  p = root / f"{part}.js.z64.c{i}"
+                  p = root / f"{prefix}.c{i}"
                   if not p.exists():
                       break
                   chunks.append(p.read_text().strip())
                   i += 1
-              assert chunks, f"missing chunks for {part}"
+              if not chunks:
+                  print("skip missing", prefix)
+                  return None
               data = zlib.decompress(base64.b64decode("".join(chunks)))
-              (root / f"{part}.js").write_bytes(data)
-              parts.append(data)
-              print(part, len(data), "from", i, "chunks")
-          app = b"".join(parts)
-          (root / "app.js").write_bytes(app)
-          print("app.js", len(app))
+              (root / out_name).write_bytes(data)
+              print(out_name, len(data), "from", i, "chunks")
+              return data
+          p1 = inflate("app-part1.js.z64", "app-part1.js")
+          p2 = inflate("app-part2.js.z64", "app-part2.js")
+          if p1 is not None and p2 is not None:
+              app = p1 + p2
+              (root / "app.js").write_bytes(app)
+              print("app.js", len(app))
+          inflate("index.html.z64", "index.html")
+          inflate("styles.css.z64", "styles.css")
           PY
       - name: Commit assembled files
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add app.js app-part1.js app-part2.js
+          git add app.js app-part1.js app-part2.js index.html styles.css || true
           if git diff --cached --quiet; then echo unchanged; else
-            git commit -m "chore: assemble app.js from z64 chunks ($(wc -c < app.js) bytes)"
+            git commit -m "chore: assemble frontend assets from z64 chunks"
             git push
           fi
