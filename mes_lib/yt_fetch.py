@@ -17,7 +17,6 @@ from mes_parse import (
     parse_vtt_or_srt,
     pick_lang,
 )
-from mes_mt import translate_cues_en_to_zh_hant
 from mes_lib.yt_common import (
     _CLIENT_STRATEGIES,
     _download_langs,
@@ -96,7 +95,6 @@ def fetch_youtube_captions(url: str) -> dict[str, Any]:
                 if _is_bot_or_rate_error(e):
                     time.sleep(1.2)
                     continue
-                # Non-bot errors: still try next client once
                 time.sleep(0.5)
                 continue
 
@@ -129,7 +127,6 @@ def fetch_youtube_captions(url: str) -> dict[str, Any]:
         if not wanted:
             wanted = ["en"]
 
-        # Download with the successful probe clients first, then fall back.
         client_order: list[list[str]] = []
         if used_clients:
             client_order.append(used_clients)
@@ -143,11 +140,14 @@ def fetch_youtube_captions(url: str) -> dict[str, Any]:
                 break
             time.sleep(0.8)
 
-        # timedtext last resort (no cookies)
         if not any(_find_sub_file(tmpdir, video_id, lang) for lang in wanted):
             _timedtext_fallback(video_id, tmpdir, wanted)
 
         disk_langs = _disk_langs(tmpdir, video_id)
+        for cand in ("en", "en-US", "en-GB", "en-orig", "a.en"):
+            if cand in disk_langs:
+                en_lang = cand
+                break
         if not en_lang:
             en_lang = pick_lang({k: True for k in disk_langs}, EN_LANG_PRIORITY)
         if not zh_lang:
@@ -170,7 +170,6 @@ def fetch_youtube_captions(url: str) -> dict[str, Any]:
                 used_zh = zh_lang
 
         if not en_cues and not zh_cues:
-            # One more aggressive pass: try downloading "en" with android only
             _download_langs(url, tmpdir, ["en", "en-US", "en-GB"], ["android"])
             for lang in ("en", "en-US", "en-GB", *disk_langs):
                 fp = _find_sub_file(tmpdir, video_id, lang)
@@ -194,13 +193,11 @@ def fetch_youtube_captions(url: str) -> dict[str, Any]:
         cues = merge_tracks(en_cues, zh_cues)
         warnings: list[str] = []
         translated = False
-        if cues and any((c.get("en") or "").strip() and not (c.get("zh") or "").strip() for c in cues):
-            cues, mt_note = translate_cues_en_to_zh_hant(cues)
-            if mt_note:
-                warnings.append(mt_note)
-            if any((c.get("zh") or "").strip() for c in cues) and not used_zh:
-                used_zh = "zh-Hant (MT)"
-                translated = True
+        need_mt = cues and any((c.get("en") or "").strip() and not (c.get("zh") or "").strip() for c in cues)
+        if need_mt:
+            warnings.append(
+                "已載入英文字幕；繁中將由前端分批呼叫 /api/translate-cues（避免免費主機記憶體不足）。"
+            )
         if zh_cues and not en_cues:
             warnings.append("找不到英文字幕，僅載入中文。")
 
