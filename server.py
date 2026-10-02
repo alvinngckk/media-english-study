@@ -44,7 +44,6 @@ def youtube_captions():
         return jsonify({"ok": False, "error": str(e)}), 400
     except Exception as e:
         msg = str(e) or e.__class__.__name__
-        # Normalize common yt-dlp errors for 繁中 UI
         low = msg.lower()
         if "sign in" in low or "bot" in low:
             msg = (
@@ -58,7 +57,6 @@ def youtube_captions():
         elif "no subtitle" in low or "沒有可用" in msg:
             pass
         else:
-            # keep original but ensure readable
             msg = f"擷取字幕失敗：{msg}"
         app.logger.warning("youtube-captions error: %s\n%s", e, traceback.format_exc())
         return jsonify({"ok": False, "error": msg}), 502
@@ -78,7 +76,6 @@ def static_files(path: str):
     if path and target.is_file():
         return send_from_directory(ROOT, path)
     if (ROOT / "index.html").is_file() and (not path or not (ROOT / path).exists()):
-        # SPA-ish fallback only for missing paths that look like pages
         if not path or path.endswith(".html"):
             return send_from_directory(ROOT, "index.html")
     if path and not target.exists():
