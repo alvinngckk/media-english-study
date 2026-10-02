@@ -34,168 +34,191 @@
       <!-- Media column -->
       <section class="panel media-panel">
         <div class="media-wrap" id="mediaWrap">
+          <video id="mediaEl" playsinline controls controlsList="nodownload"></video>
           <div class="media-placeholder" id="mediaPlaceholder">
-            <div class="media-placeholder-icon">📽️</div>
-            <p>拖放或選擇影片／音訊檔</p>
-            <p class="hint">支援 mp4、webm、mp3、m4a、wav 等</p>
-            <label class="btn btn-primary file-btn">
-              選擇檔案
-              <input type="file" id="mediaInput" accept="video/*,audio/*,.mp4,.webm,.mkv,.mov,.mp3,.m4a,.wav,.ogg" hidden />
-            </label>
+            <div class="icon">🎥</div>
+            <p>上傳電影片段或音訊開始學習</p>
           </div>
-          <video id="mediaEl" playsinline controls></video>
         </div>
 
-        <div class="controls">
-          <div class="controls-row">
-            <button type="button" class="btn btn-icon" id="btnPlay" title="播放／暫停 (Space)">▶️</button>
-            <button type="button" class="btn btn-icon" id="btnPrev" title="上一句 (←)">⏮️</button>
-            <button type="button" class="btn btn-icon" id="btnNext" title="下一句 (→)">⏭️</button>
-            <button type="button" class="btn btn-icon" id="btnLoop" title="循環目前句子 (L)">🔁</button>
-            <button type="button" class="btn btn-icon" id="btnShadow" title="跟讀模式 (S)">🗣️</button>
-            <button type="button" class="btn btn-icon" id="btnA" title="設定 A 點">A</button>
-            <button type="button" class="btn btn-icon" id="btnB" title="設定 B 點">B</button>
-            <button type="button" class="btn btn-icon" id="btnClearAB" title="清除 A-B">✕AB</button>
-            <span class="time" id="timeDisplay">00:00 / 00:00</span>
+        <div class="upload-section">
+          <div class="drop-zone" id="mediaDrop" role="button" tabindex="0" aria-label="上傳媒體">
+            <strong>拖放影音到此，或點擊選擇</strong>
+            <p>支援 mp4、webm、mp3、m4a、wav 等</p>
+            <input type="file" id="mediaInput" class="sr-only" accept="video/*,audio/*,.mp4,.webm,.mkv,.mov,.mp3,.m4a,.wav,.ogg,.flac,.aac" />
           </div>
-          <div class="controls-row">
-            <label class="field">
-              <span>速度</span>
-              <select id="speedSelect">
+        </div>
+
+        <div class="controls-bar">
+          <div class="shadow-banner" id="shadowBanner"></div>
+          <div class="control-row">
+            <button type="button" class="btn btn-icon" id="btnPrev" title="上一句 ←">⏮</button>
+            <button type="button" class="btn btn-icon btn-primary" id="btnPlay" title="播放／暫停 Space">▶</button>
+            <button type="button" class="btn btn-icon" id="btnNext" title="下一句 →">⏭</button>
+            <button type="button" class="btn btn-sm" id="btnLoop" title="循環目前句子 L">🔁 循環句</button>
+            <button type="button" class="btn btn-sm" id="btnShadow" title="跟讀模式 S">🎙️ 跟讀</button>
+            <span class="ab-indicator hidden" id="abIndicator"></span>
+            <span class="time-display" id="timeDisplay">00:00 / --:--</span>
+          </div>
+          <div class="control-row">
+            <div class="speed-control">
+              <label for="speedSelect">速度</label>
+              <select id="speedSelect" class="sel">
                 <option value="0.5">0.5×</option>
                 <option value="0.75">0.75×</option>
                 <option value="1" selected>1×</option>
                 <option value="1.25">1.25×</option>
                 <option value="1.5">1.5×</option>
               </select>
-            </label>
-            <label class="field">
-              <span>練習</span>
-              <select id="practiceSelect">
+            </div>
+            <div class="mode-control">
+              <label for="practiceSelect">練習模式</label>
+              <select id="practiceSelect" class="sel">
                 <option value="both">英＋中</option>
-                <option value="hide-en">隱藏英文</option>
-                <option value="hide-zh">隱藏中文</option>
+                <option value="hide-en">隱藏英文（聽＋看中文）</option>
+                <option value="hide-zh">隱藏中文（讀英文）</option>
               </select>
-            </label>
-            <span class="ab-indicator" id="abIndicator" hidden></span>
+            </div>
+            <button type="button" class="btn btn-sm" id="btnA" title="設定 A 點">A</button>
+            <button type="button" class="btn btn-sm" id="btnB" title="設定 B 點">B</button>
+            <button type="button" class="btn btn-sm btn-ghost" id="btnClearAB">清除 A-B</button>
           </div>
-          <div class="shadow-banner" id="shadowBanner" hidden>跟讀模式：播放 → 停頓 → 再播</div>
         </div>
       </section>
 
       <!-- Transcript column -->
       <section class="panel transcript-panel">
-        <div class="panel-head">
-          <h2>雙語字幕</h2>
-          <div class="panel-head-actions">
+        <div class="panel-header">
+          <h2 class="panel-title">雙語字幕</h2>
+          <div style="display:flex;gap:0.35rem;flex-wrap:wrap">
             <button type="button" class="btn btn-sm" id="btnExportSrt">匯出 SRT</button>
             <button type="button" class="btn btn-sm" id="btnExportTxt">匯出 TXT</button>
-          </div>
-        </div>
-
-        <div class="load-box">
-          <div class="load-tabs" role="tablist">
-            <button type="button" class="tab active" data-tab="upload">上傳字幕</button>
-            <button type="button" class="tab" data-tab="url">網址／YouTube</button>
-            <button type="button" class="tab" data-tab="paste">貼上文字</button>
-            <button type="button" class="tab" data-tab="whisper">Whisper</button>
-          </div>
-          <div class="tab-panel active" id="tab-upload">
-            <div class="upload-grid">
-              <label class="upload-card">
-                <span>英文 SRT／VTT</span>
-                <input type="file" id="enSubInput" accept=".srt,.vtt,.txt,text/plain" />
-              </label>
-              <label class="upload-card">
-                <span>繁中 SRT／VTT</span>
-                <input type="file" id="zhSubInput" accept=".srt,.vtt,.txt,text/plain" />
-              </label>
-              <label class="upload-card wide">
-                <span>雙語合一檔（英＋中在同一檔）</span>
-                <input type="file" id="biSubInput" accept=".srt,.vtt,.txt,text/plain" />
-              </label>
-            </div>
-          </div>
-          <div class="tab-panel" id="tab-url">
-            <div class="url-row">
-              <input type="url" id="subUrlInput" placeholder="https://youtube.com/watch?v=… 或 .srt／.vtt 網址" />
-              <button type="button" class="btn btn-primary" id="btnLoadUrl">載入</button>
-            </div>
-            <p class="hint" id="urlLoadHint">可貼 YouTube 連結（youtube.com／youtu.be），本機後端會用 yt-dlp 拉取英＋繁中字幕（官方或自動）。亦可貼 .srt／.vtt／.txt 網址或相對路徑。若無官方／自動字幕、年齡限制或限流，會顯示錯誤 — 請改上傳字幕檔。</p>
-          </div>
-          <div class="tab-panel" id="tab-paste">
-            <textarea id="pasteArea" rows="6" placeholder="貼上 SRT 或 VTT 文字…"></textarea>
-            <div class="paste-actions">
-              <label class="field">
-                <span>語系</span>
-                <select id="pasteLang">
-                  <option value="bi">雙語／自動</option>
-                  <option value="en">英文</option>
-                  <option value="zh">繁中</option>
-                </select>
-              </label>
-              <button type="button" class="btn btn-primary" id="btnLoadPaste">載入文字</button>
-            </div>
-          </div>
-          <div class="tab-panel" id="tab-whisper">
-            <p class="hint">使用瀏覽器 Whisper（需已載入媒體）。僅產生英文字幕，可再自行補繁中。</p>
-            <button type="button" class="btn btn-primary" id="btnWhisper">開始轉錄英文</button>
-            <div class="progress" id="transcribeProgress" hidden>
-              <div class="progress-bar"><div class="progress-fill" id="transcribeProgressFill"></div></div>
-              <span id="transcribeProgressLabel">0%</span>
-            </div>
           </div>
         </div>
 
         <div class="cue-list" id="cueList" aria-live="polite">
           <div class="empty-cues">尚未載入字幕。<br>請上傳、貼上網址／文字，或載入示範字幕。</div>
         </div>
+
+        <div class="caption-tools">
+          <div class="drop-zone" id="captionDrop" style="padding:0.85rem">
+            <strong>拖放字幕檔到此</strong>
+            <p>.srt / .vtt — 自動辨識英／中或雙語</p>
+          </div>
+
+          <details open>
+            <summary>上傳字幕檔</summary>
+            <div class="details-body">
+              <div class="file-row">
+                <label class="btn btn-sm">英文 SRT／VTT
+                  <input type="file" id="capEnInput" class="sr-only" accept=".srt,.vtt,.txt,text/plain,text/vtt" />
+                </label>
+                <label class="btn btn-sm">繁中 SRT／VTT
+                  <input type="file" id="capZhInput" class="sr-only" accept=".srt,.vtt,.txt,text/plain,text/vtt" />
+                </label>
+                <label class="btn btn-sm btn-primary">雙語合一
+                  <input type="file" id="capBiInput" class="sr-only" accept=".srt,.vtt,.txt,text/plain,text/vtt" />
+                </label>
+              </div>
+              <p class="hint">若只有英文，可在每句下方點擊直接輸入繁中；亦可稍後再貼上中文字幕合併。</p>
+            </div>
+          </details>
+
+          <details open>
+            <summary>貼上網址／YouTube 載入字幕</summary>
+            <div class="details-body">
+              <div class="url-load-row">
+                <input type="text" class="url-input" inputmode="url" id="captionUrlInput" placeholder="YouTube 連結，或 https://…/*.srt／.vtt" autocomplete="off" spellcheck="false" />
+                <select id="captionUrlLang" class="sel" title="載入後作為">
+                  <option value="auto" selected>自動／雙語</option>
+                  <option value="en">英文</option>
+                  <option value="zh">繁中</option>
+                </select>
+                <button type="button" class="btn btn-sm btn-primary" id="btnLoadUrl">載入</button>
+              </div>
+              <p class="hint" id="urlLoadHint">可貼 YouTube 連結（youtube.com／youtu.be），本機後端會用 yt-dlp 拉取英＋繁中字幕（官方或自動）。亦可貼 .srt／.vtt／.txt 網址或相對路徑。若無官方／自動字幕、年齡限制或限流，會顯示錯誤 — 請改上傳字幕檔。</p>
+              <p class="hint url-status" id="urlLoadStatus" aria-live="polite"></p>
+            </div>
+          </details>
+
+          <details>
+            <summary>貼上 SRT／VTT 文字</summary>
+            <div class="details-body">
+              <textarea class="paste-area" id="pasteArea" placeholder="在此貼上 SRT 或 VTT 內容…"></textarea>
+              <div class="file-row">
+                <button type="button" class="btn btn-sm" id="btnPasteEn">作為英文</button>
+                <button type="button" class="btn btn-sm" id="btnPasteZh">作為繁中</button>
+                <button type="button" class="btn btn-sm btn-primary" id="btnPasteBi">自動／雙語</button>
+              </div>
+            </div>
+          </details>
+
+          <details>
+            <summary>可選：瀏覽器自動轉錄（英文 Whisper）</summary>
+            <div class="details-body">
+              <p class="hint" id="whisperNote">
+                使用 <code>@xenova/transformers</code> 在瀏覽器執行 Whisper tiny（僅英文）。
+                首次需下載模型，較耗資源；失敗時請改用 SRT 上傳（建議主力方式）。
+                <strong>不會產生虛構字幕。</strong>
+              </p>
+              <button type="button" class="btn btn-sm" id="btnWhisper">開始自動轉錄（英文）</button>
+              <div class="progress-bar" id="transcribeProgress">
+                <div class="progress-fill" id="transcribeProgressFill"></div>
+              </div>
+              <p class="hint" id="transcribeProgressLabel"></p>
+            </div>
+          </details>
+        </div>
       </section>
     </main>
   </div>
 
   <!-- Vocab drawer -->
-  <aside class="drawer" id="vocabDrawer" hidden>
-    <div class="drawer-backdrop" id="vocabBackdrop"></div>
-    <div class="drawer-panel">
-      <div class="drawer-head">
-        <h2>生詞本</h2>
-        <button type="button" class="btn btn-icon" id="btnCloseVocab" aria-label="關閉">✕</button>
-      </div>
-      <div class="drawer-body">
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+  <aside class="drawer" id="vocabDrawer" aria-label="生詞本">
+    <div class="drawer-header">
+      <strong>生詞本</strong>
+      <button type="button" class="btn btn-sm btn-ghost" data-close-drawer>關閉</button>
+    </div>
+    <div class="drawer-body">
+      <div id="vocabListPanel">
         <div id="vocabList"></div>
-        <div class="flashcard-box">
-          <h3>閃卡</h3>
-          <div class="flashcard" id="flashcard">
-            <div class="flashcard-front" id="flashFront">—</div>
-            <div class="flashcard-back" id="flashBack" hidden>—</div>
-          </div>
-          <div class="flashcard-actions">
-            <button type="button" class="btn" id="btnFlashFlip">翻面</button>
-            <button type="button" class="btn" id="btnFlashPrev">上一張</button>
-            <button type="button" class="btn" id="btnFlashNext">下一張</button>
-          </div>
-        </div>
       </div>
+      <div id="flashcardPanel" class="hidden">
+        <div class="flashcard" id="flashcard"></div>
+        <div class="control-row" style="margin-top:0.75rem;justify-content:center">
+          <button type="button" class="btn btn-sm" id="btnFcPrev">上一張</button>
+          <button type="button" class="btn btn-sm" id="btnFcNext">下一張</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-ghost" id="btnBackVocab" style="margin-top:0.5rem;width:100%">← 返回列表</button>
+      </div>
+    </div>
+    <div class="drawer-footer">
+      <button type="button" class="btn btn-sm btn-primary" id="btnFlashcards">閃卡複習</button>
+      <button type="button" class="btn btn-sm" id="btnClearVocab">清空生詞本</button>
     </div>
   </aside>
 
-  <div class="modal" id="shortcutsModal" hidden>
-    <div class="modal-backdrop" data-close></div>
-    <div class="modal-panel">
-      <h2>快捷鍵</h2>
-      <ul class="shortcuts">
-        <li><kbd>Space</kbd> 播放／暫停</li>
-        <li><kbd>←</kbd>／<kbd>→</kbd> 上一句／下一句</li>
-        <li><kbd>L</kbd> 循環目前句子</li>
-        <li><kbd>S</kbd> 跟讀模式</li>
-        <li><kbd>A</kbd>／<kbd>B</kbd> 設定 A-B 循環</li>
-      </ul>
-      <button type="button" class="btn btn-primary" data-close>關閉</button>
+  <aside class="drawer" id="shortcutsDrawer" aria-label="快捷鍵">
+    <div class="drawer-header">
+      <strong>鍵盤快捷鍵</strong>
+      <button type="button" class="btn btn-sm btn-ghost" data-close-drawer>關閉</button>
     </div>
-  </div>
+    <div class="drawer-body">
+      <ul class="shortcuts-list">
+        <li><span>播放／暫停</span><kbd>Space</kbd></li>
+        <li><span>上一句</span><kbd>←</kbd></li>
+        <li><span>下一句</span><kbd>→</kbd></li>
+        <li><span>循環目前句子</span><kbd>L</kbd></li>
+        <li><span>跟讀模式開關</span><kbd>S</kbd></li>
+        <li><span>設定 A-B 循環 A 點</span><kbd>A</kbd></li>
+        <li><span>設定 A-B 循環 B 點</span><kbd>B</kbd></li>
+      </ul>
+      <p class="hint" style="margin-top:1rem">在輸入框或編輯字幕時，快捷鍵會暫時停用。</p>
+    </div>
+  </aside>
 
-  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="toast" id="toast" role="status"></div>
 
   <script src="./app.js" defer></script>
 </body>
