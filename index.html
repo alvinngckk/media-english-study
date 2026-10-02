@@ -31,7 +31,6 @@
     </div>
 
     <main class="main">
-      <!-- Media column -->
       <section class="panel media-panel">
         <div class="media-wrap" id="mediaWrap">
           <video id="mediaEl" playsinline controls controlsList="nodownload"></video>
@@ -86,7 +85,6 @@
         </div>
       </section>
 
-      <!-- Transcript column -->
       <section class="panel transcript-panel">
         <div class="panel-header">
           <h2 class="panel-title">雙語字幕</h2>
@@ -97,7 +95,7 @@
         </div>
 
         <div class="cue-list" id="cueList" aria-live="polite">
-          <div class="empty-cues">尚未載入字幕。<br>請上傳或貼上 SRT／VTT，或載入示範字幕。</div>
+          <div class="empty-cues">尚未載入字幕。<br>請上傳、貼上網址／文字，或載入示範字幕。</div>
         </div>
 
         <div class="caption-tools">
@@ -121,6 +119,23 @@
                 </label>
               </div>
               <p class="hint">若只有英文，可在每句下方點擊直接輸入繁中；亦可稍後再貼上中文字幕合併。</p>
+            </div>
+          </details>
+
+          <details open>
+            <summary>貼上網址／YouTube 載入字幕</summary>
+            <div class="details-body">
+              <div class="url-load-row">
+                <input type="text" class="url-input" inputmode="url" id="captionUrlInput" placeholder="YouTube 連結，或 https://…/*.srt／.vtt" autocomplete="off" spellcheck="false" />
+                <select id="captionUrlLang" class="sel" title="載入後作為">
+                  <option value="auto" selected>自動／雙語</option>
+                  <option value="en">英文</option>
+                  <option value="zh">繁中</option>
+                </select>
+                <button type="button" class="btn btn-sm btn-primary" id="btnLoadUrl">載入</button>
+              </div>
+              <p class="hint" id="urlLoadHint">可貼 YouTube 連結（youtube.com／youtu.be），本機後端會用 yt-dlp 拉取英＋繁中字幕（官方或自動）。亦可貼 .srt／.vtt／.txt 網址或相對路徑。若無官方／自動字幕、年齡限制或限流，會顯示錯誤 — 請改上傳字幕檔。</p>
+              <p class="hint url-status" id="urlLoadStatus" aria-live="polite"></p>
             </div>
           </details>
 
@@ -156,7 +171,6 @@
     </main>
   </div>
 
-  <!-- Vocab drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
   <aside class="drawer" id="vocabDrawer" aria-label="生詞本">
     <div class="drawer-header">
