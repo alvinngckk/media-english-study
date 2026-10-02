@@ -36,6 +36,14 @@ python3 -m http.server 5173 --directory . --bind 0.0.0.0
 5. 調整速度、練習模式、循環句、A-B、跟讀。
 6. **匯出**雙語 SRT 或純文字。
 
+## YouTube 限流／機器人驗證
+
+雲端主機（含 Velixir）的 IP 常被 YouTube 回 429 或「Sign in to confirm you’re not a bot」。
+
+- 預設**不需要**登入；本機／隧道環境多半可用 `android` player client 拉取字幕。
+- 若雲端仍失敗，可選：在伺服器放入 Netscape 格式 `cookies.txt`，並設環境變數 `YOUTUBE_COOKIES=/path/to/cookies.txt`（或檔案放在 `/data/cookies.txt`）。**請勿把 Cookie 內容貼到聊天。**
+- 或改下載／上傳 SRT／VTT。
+
 ## YouTube 字幕 API
 
 | 項目 | 說明 |
@@ -72,17 +80,17 @@ curl -sG 'http://127.0.0.1:5173/api/youtube-captions' \
 
 - `index.html` / `styles.css` / `app.js` — 前端  
 - `server.py` — Flask：靜態檔 + YouTube 字幕 API  
-- `requirements.txt` — `flask`, `yt-dlp`  
+- `requirements.txt` — `flask`, `yt-dlp`, `curl_cffi`  
 - `sample-bilingual.srt` — 示範雙語字幕  
 
 ## 限制與注意
 
 - **YouTube**：純瀏覽器因 CORS 無法可靠抓字幕；必須跑 `server.py`。靜態託管（Shiply／Harvis／GitHub Pages）**沒有此 API**，貼 YouTube 會提示改用本機後端或上傳 SRT。
 - **無字幕／僅自動字幕語言不全**：若影片無英／中官方或自動字幕，API 回傳清楚錯誤；僅有英文時會載入英文並提示可補繁中。
-- **年齡限制／私人／地區封鎖／機器人驗證（429）**：yt-dlp 可能失敗；本服務**預設不使用登入 Cookie**。請稍後再試或改上傳字幕檔。
+- **年齡限制／私人／地區封鎖／機器人驗證（429）**：yt-dlp 可能失敗；本服務**預設不用登入 Cookie**，但可選設 `YOUTUBE_COOKIES`。請稍後再試或改上傳字幕檔。
 - **自動轉錄**為可選 Whisper tiny（僅英文）；請以 SRT／YouTube／上傳為主力。
 - 生詞等存 `localStorage`；影音只在本機解碼。
 
 ## 技術
 
-前端：HTML5 media、SRT／VTT 解析。後端：Flask + yt-dlp（優先 android player client）。
+前端：HTML5 media、SRT／VTT 解析。後端：Flask + yt-dlp（優先 android／ios player client，可選 cookies + curl_cffi impersonate）。
