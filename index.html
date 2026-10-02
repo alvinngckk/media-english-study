@@ -26,12 +26,11 @@
     </header>
 
     <div class="sample-bar">
-      <span>💡 可先載入示範字幕試用介面（虛構對話）。亦可上傳 <code>sample-tone.wav</code> 試播放。</span>
+      <span>💡 請用本頁網址使用「自動產生雙語字幕」（舊版連結可能沒有此功能）。上傳 mp4／webm 電影或 wav／mp3 後按自動產生；音訊走瀏覽器解碼，影片會擷取音軌。亦可載入示範字幕或 <code>sample-speech.wav</code>／<code>sample-tone.wav</code> 試用。</span>
       <button type="button" class="btn btn-sm btn-primary" id="btnLoadSample">載入示範字幕</button>
     </div>
 
     <main class="main">
-      <!-- Media column -->
       <section class="panel media-panel">
         <div class="media-wrap" id="mediaWrap">
           <video id="mediaEl" playsinline controls controlsList="nodownload"></video>
@@ -44,8 +43,24 @@
         <div class="upload-section">
           <div class="drop-zone" id="mediaDrop" role="button" tabindex="0" aria-label="上傳媒體">
             <strong>拖放影音到此，或點擊選擇</strong>
-            <p>支援 mp4、webm、mp3、m4a、wav 等</p>
+            <p>支援 mp4、webm、mp3、m4a、wav 等 — 上傳後可自動產生英＋繁字幕</p>
             <input type="file" id="mediaInput" class="sr-only" accept="video/*,audio/*,.mp4,.webm,.mkv,.mov,.mp3,.m4a,.wav,.ogg,.flac,.aac" />
+          </div>
+          <div class="auto-sub-panel" id="autoSubPanel">
+            <div class="auto-sub-row">
+              <button type="button" class="btn btn-sm btn-primary" id="btnAutoSubs" disabled title="需先上傳影音">
+                ✨ 自動產生雙語字幕（英＋繁）
+              </button>
+              <span class="hint" id="autoSubHint">上傳電影／音訊後按此：語音辨識英文，再自動譯成繁體中文。不需 YouTube。</span>
+            </div>
+            <p class="hint warn-hint" id="autoSubLimitHint">
+              免費雲端主機約 <strong>256MB RAM</strong>：大型檔案或伺服器 Whisper 可能失敗；
+              失敗時會改用<strong>瀏覽器內</strong> Whisper tiny（僅英文）＋後端英→繁。建議片段 &lt; 10 分鐘、&lt; 40MB。
+            </p>
+            <div class="progress-bar" id="autoSubProgress">
+              <div class="progress-fill" id="autoSubProgressFill"></div>
+            </div>
+            <p class="hint url-status" id="autoSubStatus" aria-live="polite"></p>
           </div>
         </div>
 
@@ -86,7 +101,6 @@
         </div>
       </section>
 
-      <!-- Transcript column -->
       <section class="panel transcript-panel">
         <div class="panel-header">
           <h2 class="panel-title">雙語字幕</h2>
@@ -153,15 +167,19 @@
             </div>
           </details>
 
-          <details>
-            <summary>可選：瀏覽器自動轉錄（英文 Whisper）</summary>
+          <details open>
+            <summary>自動語音辨識（上傳影音 → 英＋繁字幕）</summary>
             <div class="details-body">
               <p class="hint" id="whisperNote">
-                使用 <code>@xenova/transformers</code> 在瀏覽器執行 Whisper tiny（僅英文）。
-                首次需下載模型，較耗資源；失敗時請改用 SRT 上傳（建議主力方式）。
-                <strong>不會產生虛構字幕。</strong>
+                優先嘗試伺服器 <code>/api/transcribe</code>（ffmpeg 擷取音訊＋可選 Whisper／Vosk）；
+                若免費主機記憶體不足，改用瀏覽器 <code>@xenova/transformers</code> Whisper tiny.en，
+                再呼叫 <code>/api/translate-cues</code> 英→繁（deep-translator／Argos）。
+                <strong>不會虛構字幕。</strong> YouTube 貼上與 SRT／VTT 上傳仍可用。
               </p>
-              <button type="button" class="btn btn-sm" id="btnWhisper">開始自動轉錄（英文）</button>
+              <div class="file-row">
+                <button type="button" class="btn btn-sm btn-primary" id="btnAutoSubs2">自動產生雙語字幕</button>
+                <button type="button" class="btn btn-sm" id="btnWhisper">僅瀏覽器轉錄（英文）</button>
+              </div>
               <div class="progress-bar" id="transcribeProgress">
                 <div class="progress-fill" id="transcribeProgressFill"></div>
               </div>
@@ -173,7 +191,6 @@
     </main>
   </div>
 
-  <!-- Vocab drawer -->
   <div class="drawer-backdrop" id="drawerBackdrop"></div>
   <aside class="drawer" id="vocabDrawer" aria-label="生詞本">
     <div class="drawer-header">
