@@ -16,7 +16,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt \
     && python -c "import argostranslate.package as p; p.update_package_index(); pkgs=[x for x in p.get_available_packages() if x.from_code=='en' and x.to_code=='zt']; assert pkgs, 'en→zt package missing'; p.install_from_path(pkgs[0].download())"
 
-COPY server.py mes_captions.py mes_parse.py mes_mt.py mes_youtube.py index.html styles.css app-part1.js app-part2.js sample-bilingual.srt README.md ./
+COPY server.py mes_captions.py mes_parse.py mes_mt.py mes_youtube.py index.html styles.css app.js sample-bilingual.srt README.md ./
 
 EXPOSE 8080
 
