@@ -4,10 +4,10 @@ import time
 
 
 def _translate_texts_en_to_zh_hant(texts: list[str]) -> list[str]:
-    """Translate EN\u2192Traditional Chinese. Prefer offline Argos (en\u2192zt); fallback deep-translator."""
+    """Translate EN→Traditional Chinese. Prefer offline Argos (en→zt); fallback deep-translator."""
     if not texts:
         return []
-    # 1) Offline Argos Translate (en \u2192 zt = Traditional Chinese)
+    # 1) Offline Argos Translate (en → zt = Traditional Chinese)
     try:
         import argostranslate.translate  # type: ignore
 
@@ -16,19 +16,23 @@ def _translate_texts_en_to_zh_hant(texts: list[str]) -> list[str]:
         zt_lang = next((l for l in installed if l.code in ("zt", "zh-tw", "zh_Hant")), None)
         if en_lang and zt_lang:
             tr = en_lang.get_translation(zt_lang)
-            return [(tr.translate(t) or "").strip() if t else "" for t in texts]
-        out = []
-        for t in texts:
-            out.append(
-                (argostranslate.translate.translate(t, "en", "zt") or "").strip() if t else ""
-            )
-        if any(out):
-            return out
+            out = [(tr.translate(t) or "").strip() if t else "" for t in texts]
+            if any(out):
+                return out
+            # Empty results → try online fallback below
+        else:
+            out = []
+            for t in texts:
+                out.append(
+                    (argostranslate.translate.translate(t, "en", "zt") or "").strip() if t else ""
+                )
+            if any(out):
+                return out
     except Exception:
         pass
 
-    # 2) Online fallback: deep-translator Google \u2192 zh-TW
-    # Google free MT ~5 req/s \u2014 use tiny batches + delays; keep EN on failure (caller).
+    # 2) Online fallback: deep-translator Google → zh-TW
+    # Google free MT ~5 req/s — use tiny batches + delays; keep EN on failure (caller).
     try:
         from deep_translator import GoogleTranslator
 
@@ -69,7 +73,7 @@ def _translate_texts_en_to_zh_hant(texts: list[str]) -> list[str]:
 
 
 def translate_cues_en_to_zh_hant(cues: list[dict[str, Any]]) -> tuple[list[dict[str, Any]], str | None]:
-    """Fill empty zh from en (Argos offline en\u2192zt, else deep-translator). Keep EN if MT fails."""
+    """Fill empty zh from en (Argos offline en→zt, else deep-translator). Keep EN if MT fails."""
     need = [i for i, c in enumerate(cues) if (c.get("en") or "").strip() and not (c.get("zh") or "").strip()]
     if not need:
         return cues, None
@@ -77,7 +81,7 @@ def translate_cues_en_to_zh_hant(cues: list[dict[str, Any]]) -> tuple[list[dict[
     try:
         translated = _translate_texts_en_to_zh_hant(texts)
     except Exception as e:
-        return cues, f"\u81ea\u52d5\u82f1\u2192\u7e41\u7ffb\u8b6f\u5931\u6557\uff08{e}\uff09\u3002\u5df2\u4fdd\u7559\u82f1\u6587\u5b57\u5e55\uff0c\u53ef\u65bc\u4ecb\u9762\u9010\u884c\u88dc\u7e41\u4e2d\u3002"
+        return cues, f"自動英→繁翻譯失敗（{e}）。已保留英文字幕，可於介面逐行補繁中。"
 
     if len(translated) != len(need):
         while len(translated) < len(need):
@@ -92,6 +96,6 @@ def translate_cues_en_to_zh_hant(cues: list[dict[str, Any]]) -> tuple[list[dict[
             out_cues[idx]["zh"] = zh
             filled += 1
     if filled == 0:
-        return cues, "\u81ea\u52d5\u82f1\u2192\u7e41\u672a\u7522\u751f\u6709\u6548\u8b6f\u6587\u3002\u5df2\u4fdd\u7559\u82f1\u6587\uff0c\u53ef\u65bc\u4ecb\u9762\u9010\u884c\u88dc\u7e41\u4e2d\u3002"
-    note = f"\u7121\u5b98\u65b9\uff0f\u81ea\u52d5\u4e2d\u6587\u5b57\u5e55\uff1b\u5df2\u81ea\u52d5\u82f1\u2192\u7e41\uff08zh-Hant\uff09\u7ffb\u8b6f {filled}/{len(need)} \u53e5\u3002"
+        return cues, "自動英→繁未產生有效譯文。已保留英文，可於介面逐行補繁中。"
+    note = f"無官方／自動中文字幕；已自動英→繁（zh-Hant）翻譯 {filled}/{len(need)} 句。"
     return out_cues, note
