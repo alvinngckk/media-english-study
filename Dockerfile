@@ -1,5 +1,6 @@
 FROM python:3.12-slim
 
+# Optional cookies at runtime: YOUTUBE_COOKIES=/data/cookies.txt (Netscape format)
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     HOST=0.0.0.0 \
@@ -9,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    ca-certificates curl \
+    ca-certificates curl nodejs \
     && rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
@@ -20,4 +21,4 @@ COPY server.py mes_captions.py mes_parse.py mes_mt.py mes_youtube.py index.html 
 
 EXPOSE 8080
 
-CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --threads 4 --timeout 120 server:app"]
+CMD ["sh", "-c", "exec gunicorn --bind 0.0.0.0:${PORT:-8080} --workers 1 --threads 4 --timeout 180 server:app"]
