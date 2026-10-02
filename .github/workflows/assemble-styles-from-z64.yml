@@ -1,0 +1,41 @@
+name: assemble-styles-from-z64
+on:
+  push:
+    paths:
+      - ".github/workflows/assemble-styles-from-z64.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  assemble:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Assemble styles.css
+        run: |
+          python3 - <<'PY'
+          import pathlib, base64, zlib, hashlib
+          root = pathlib.Path(".")
+          chunks = []
+          i = 0
+          while True:
+              p = root / f"styles.css.z64.c{i}"
+              if not p.exists():
+                  break
+              chunks.append(p.read_text().strip())
+              i += 1
+          assert chunks, "missing styles chunks"
+          data = zlib.decompress(base64.b64decode("".join(chunks)))
+          (root / "styles.css").write_bytes(data)
+          print("styles.css", len(data), hashlib.sha256(data).hexdigest())
+          assert len(data) == 15210
+          PY
+      - name: Commit styles.css
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add styles.css
+          if git diff --cached --quiet; then echo unchanged; else
+            git commit -m "chore: assemble styles.css from verified z64 chunks"
+            git push
+          fi
