@@ -1,2 +1,64 @@
-# media-english-study
-Bilingual media English study web app (EN + Traditional Chinese)
+# 影音英語學習（Media English Study）
+
+用電影／音訊學英文的單頁靜態網頁應用：雙語字幕（English + 繁體中文）、句子循環、跟讀、生詞本與閃卡。全部在瀏覽器執行，無需後端。
+
+## 如何開啟
+
+### 方法一：本機靜態伺服器（建議）
+
+```bash
+cd /workspace/media-english-study
+python3 -m http.server 5173 --directory . --bind 0.0.0.0
+
+# 或使用 serve
+# npx --yes serve -l 5173 .
+```
+
+然後在瀏覽器開啟：`http://localhost:5173`
+
+附帶 `sample-tone.wav`（約 3 秒提示音）可與示範字幕一併試播放。
+
+### 方法二：直接開檔
+
+用瀏覽器開啟 `index.html`。多數功能可用；若自動轉錄（Whisper）因瀏覽器安全政策受限，請改用方法一。
+
+## 使用步驟
+
+1. **上傳媒體**：拖放或選擇 mp4／webm／mp3／m4a／wav 等。
+2. **載入字幕**（三選一或併用）：上傳英文、繁中或雙語 `.srt`／`.vtt`，或貼上內容。
+3. **也可先按「載入示範字幕」** 試介面（虛構對話，非真實電影）。
+4. 點字幕句子可跳轉播放；點英文字可加入**生詞本**並自行填中文解釋。
+5. 調整速度、練習模式、循環句、A-B 循環、跟讀模式。
+6. **匯出**雙語 SRT 或純文字。
+
+## 主要功能
+
+| 功能 | 說明 |
+|------|------|
+| 雙語字幕 | 英＋繁並排／堆疊，播放同步高亮 |
+| 點句跳轉 | 點某一句即 seek 並播放 |
+| 播放速度 | 0.5×～1.5× |
+| 循環句／A-B | `L` 循環目前句；`A`／`B` 設區間 |
+| 練習模式 | 同時顯示／藏英文／藏中文 |
+| 生詞本＋閃卡 | localStorage 保存 |
+| 跟讀 | 播一句 → 停頓 → 重播（`S`） |
+| 快捷鍵 | Space、←／→、L、S、A、B |
+| 匯出 | 雙語 SRT／TXT |
+| 逐行補中文 | 僅有英文時可點行內編輯繁中 |
+
+## 檔案說明
+
+- `index.html` — 頁面結構
+- `app.js` — 邏輯（字幕解析、播放、生詞、可選 Whisper）
+- `styles.css` — 樣式
+- `sample-bilingual.srt` — 示範雙語字幕（虛構）
+
+## 限制與注意
+
+- **自動轉錄**依賴 CDN 上的 `@xenova/transformers`（Whisper tiny，僅英文）。
+- 生詞、速度、練習模式存在瀏覽器 `localStorage`。
+- 大檔案影音僅在本機解碼，不會上傳到任何伺服器。
+
+## 技術
+
+純前端：HTML5、SRT／VTT 解析、可選 Transformers.js。無需 Node 後端。

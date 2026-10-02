@@ -1,0 +1,49 @@
+1
+00:00:00,000 --> 00:00:03,200
+Welcome to Media English Study.
+歡迎使用影音英語學習。
+
+2
+00:00:03,500 --> 00:00:07,000
+This is a short demo dialogue, not from a real movie.
+這是示範對話，並非真實電影內容。
+
+3
+00:00:07,300 --> 00:00:11,000
+You can upload your own video or audio file.
+你可以上傳自己的影片或音訊檔案。
+
+4
+00:00:11,300 --> 00:00:15,500
+Load English and Traditional Chinese subtitles separately or together.
+可分別或一次載入英文與繁體中文字幕。
+
+5
+00:00:16,000 --> 00:00:20,000
+Click any line to jump to that moment.
+點擊任意一句即可跳到該時間點。
+
+6
+00:00:20,500 --> 00:00:25,000
+Try slowing down the playback and looping a sentence.
+試試放慢播放速度，並循環某一句。
+
+7
+00:00:25,500 --> 00:00:30,500
+Click an English word to save it in your vocabulary list.
+點擊英文字就可以加入生詞本。
+
+8
+00:00:31,000 --> 00:00:36,000
+Practice by hiding English or Chinese when you feel ready.
+準備好後，可用隱藏英文或中文的練習模式。
+
+9
+00:00:36,500 --> 00:00:41,500
+Shadowing mode plays a line, pauses, then plays it again.
+跟讀模式會播放一句、停頓，然後再播一次。
+
+10
+00:00:42,000 --> 00:00:47,000
+Have fun learning English with the media you love!
+祝你用喜歡的影音開心學英文！
