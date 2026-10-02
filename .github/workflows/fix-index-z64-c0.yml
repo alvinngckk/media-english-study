@@ -1,0 +1,51 @@
+name: fix-index-z64-c0
+on:
+  push:
+    paths:
+      - ".github/workflows/fix-index-z64-c0.yml"
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Fix single corrupted base64 char at index 447
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import base64, zlib, hashlib
+          p = Path("index.html.z64.c0")
+          t = p.read_text().strip()
+          print("before", len(t), hashlib.sha1(t.encode()).hexdigest()[:12], repr(t[447]))
+          if t[447] == "4":
+              t = t[:447] + "5" + t[448:]
+              p.write_text(t)
+              print("patched 4->5")
+          else:
+              print("no patch needed", repr(t[447]))
+          # verify full index assemble
+          chunks = []
+          i = 0
+          while True:
+              cp = Path(f"index.html.z64.c{i}")
+              if not cp.exists():
+                  break
+              chunks.append(cp.read_text().strip())
+              i += 1
+          data = zlib.decompress(base64.b64decode("".join(chunks)))
+          Path("index.html").write_bytes(data)
+          print("index.html", len(data), hashlib.sha256(data).hexdigest()[:16])
+          expect = 11304
+          assert len(data) == expect, (len(data), expect)
+          PY
+      - name: Commit fix + assembled index.html
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html.z64.c0 index.html
+          if git diff --cached --quiet; then echo unchanged; else
+            git commit -m "fix: correct index.html.z64.c0 char + assemble index.html"
+            git push
+          fi
