@@ -1,0 +1,11 @@
+.venv
+__pycache__
+*.pyc
+.netlify
+.git
+_*.json
+_*.txt
+.shiply.json
+.shiplyignore
+harvis.json
+README_HF.md

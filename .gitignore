@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.pyc
+.DS_Store
+.netlify/
+_*.json
+_*.txt
+.shiply.json
+.shiplyignore
+harvis.json
+.env
+.env.*
+*.pem
+.railway/
+.fly/
